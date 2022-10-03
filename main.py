@@ -44,8 +44,12 @@ def primera_lectura(archivo):
     otro = None
 
     for linea in archivo:
+        linea.replace('\n', '')
+        linea.replace('\t', '')
         for ch in linea:
-            if(ch == " " and cont == 1):
+            if(ch == '\n' or ch == '\t'):
+                pass
+            elif(ch == " " and cont == 1):
                 cont = 2
             elif(ch != " " and cont == 0):
                 cont += 1
@@ -70,7 +74,7 @@ def primera_lectura(archivo):
                     
                 elif(palabra == "ORG"):
                     direccion = x
-                    lineas[cont_lineas] = Linea(palabra, x, False, None, direccion, None)
+                    lineas.append(Linea(palabra, x, False, None, direccion, None))
 
                 else:
                     if(palabra in nems):
@@ -79,19 +83,19 @@ def primera_lectura(archivo):
                             if(nemonico[0] != None):
                                 dato = nemonico[0]
                                 direccion = suma_direcciones(direccion, dato[0])
-                                lineas[cont_lineas] = Linea(palabra, x, True, None, direccion, dato[2-len(dato)]) #Guarda IMM
+                                lineas.append(Linea(palabra, x, True, None, direccion, dato[2-len(dato)])) #Guarda IMM
 
 
                         elif(len(x) <= 2):
                             if(nemonico[1] != None):
                                 dato = nemonico[1]
                                 direccion = suma_direcciones(direccion, dato[0])
-                                lineas[cont_lineas] = Linea(palabra, x, False, None, direccion, dato[2:len(dato)]) #Guarda DIR
+                                lineas.append( Linea(palabra, x, False, None, direccion, dato[2:len(dato)])) #Guarda DIR
 
                             elif(nemonico[2] != None):
                                 dato = nemonico[2]
                                 direccion = suma_direcciones(direccion, dato[0])
-                                lineas[cont_lineas] = Linea(palabra, x, False, None, direccion, dato[2:len(dato)]) #Guarda EXT
+                                lineas.append( Linea(palabra, x, False, None, direccion, dato[2:len(dato)])) #Guarda EXT
 
                             else: #ERROR 
 
@@ -101,12 +105,12 @@ def primera_lectura(archivo):
                             if(nemonico[2] != None):
                                 dato = nemonico[2]
                                 direccion = suma_direcciones(direccion, dato[0])
-                                lineas[cont_lineas] = Linea(palabra, x, False, None, direccion, dato[2:len(dato)]) #Guarda EXT
+                                lineas.append(Linea(palabra, x, False, None, direccion, dato[2:len(dato)])) #Guarda EXT
 
                             elif(nemonico[1] != None):
                                 dato = nemonico[1]
                                 direccion = suma_direcciones(direccion, dato[0])
-                                lineas[cont_lineas] = Linea(palabra, x, False, "Fuera de Rango", direccion, dato[2:len(dato)]) #Guarda DIR con ERROR
+                                lineas.append(Linea(palabra, x, False, "Fuera de Rango", direccion, dato[2:len(dato)])) #Guarda DIR con ERROR
 
                             else: #ERROR
 
@@ -115,19 +119,19 @@ def primera_lectura(archivo):
 
                     elif(palabra in inherentes):
                         direccion = suma_direcciones(direccion, len(inherentes[palabra]) / 2)
-                        lineas[cont_lineas] = Linea(palabra, x, False, "Parametro Invalido", direccion, inherentes[palabra]) #Guarda INH con error
+                        lineas.append(Linea(palabra, x, False, "Parametro Invalido", direccion, inherentes[palabra])) #Guarda INH con error
 
                     elif(palabra in rels):  #
                         direccion = suma_direcciones(direccion, 2)
                         if(len(x) <= 4):
-                            lineas[cont_lineas] = Linea(palabra, x, False, None, direccion, rels[palabra]) #Guard REL
+                            lineas.append(Linea(palabra, x, False, None, direccion, rels[palabra])) #Guard REL
                         
                         else:
-                            lineas[cont_lineas] = Linea(palabra, x, "Fuera de Rango", None, direccion, rels[palabra]) #Guarda REL con ERROR
+                            lineas.append(Linea(palabra, x, "Fuera de Rango", None, direccion, rels[palabra])) #Guarda REL con ERROR
 
 
         elif(palabra == "ORG"):
-            lineas[cont_lineas] = Linea(palabra, parametro, False, "Parametro Invalido", direccion, None)
+            lineas.append( Linea(palabra, parametro, False, "Parametro Invalido", direccion, None))
             pass
 
         elif(palabra == "END"):
@@ -138,7 +142,33 @@ def primera_lectura(archivo):
         palabra = ""
         parametro = ""
         cont = 0
+
+    escritura(lineas, archivo)
             
+    pass
+
+def escritura(lineas, original):
+    archivo = open("archivo.txt", "w")
+    original.seek(0)
+    cont = 0
+    texto = ""
+    for linea in lineas:
+        if(linea.error == None):
+            texto += str(linea.direccion) + "  " + str(linea.codigo)
+        else:
+            texto += str(linea.direccion) + "  " + linea.error
+        for i in range(len(texto), 21):
+            texto += " "
+        texto += original.readline()
+        archivo.write(texto)
+        texto = ""
+    
+    archivo.close()
+
+
+
+    archivo.close()
+
     pass
 
 def busqueda_nem():
