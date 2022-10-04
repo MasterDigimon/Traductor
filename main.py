@@ -64,74 +64,132 @@ def primera_lectura(archivo):
 
         if(parametro != ""):
             if(parametro in etiquetas): #Etiquetas como parametro
-                parametro = etiquetas[parametro]
+                parametro = "$" + etiquetas[parametro]
+
+            x = ident_parametro(parametro)
+            if(x == False):             #ERROR Parametro invalido
+                if(palabra in nems):
+                    nemonico = nems[palabra]
+                    if(parametro[0] == "#"):
+                        if(nemonico[0] != None):
+                            dato = nemonico[0]
+                            tam = (int(dato[0]) - 1) * 2
+                            lineas.append(Linea(palabra, "", True, "Parametro Invalido", direccion, dato[-tam:])) #Guarda IMM con ERROR de Parametro
+                            direccion = suma_direcciones(direccion, dato[0])
+
+                    elif(nemonico[1] != None):
+                        dato = nemonico[1]
+                        tam = (int(dato[0]) - 1) * 2
+                        
+                        lineas.append( Linea(palabra, "", False, "Parametro Invalido", direccion, dato[-tam:])) #Guarda DIR
+                        direccion = suma_direcciones(direccion, dato[0])
+
+                    elif(nemonico[2] != None):
+                        dato = nemonico[2]
+                        tam = (int(dato[0]) - 2) * 2
+
+                        lineas.append( Linea(palabra, "", False, "Parametro Invalido", direccion, dato[-tam:])) #Guarda EXT
+                        direccion = suma_direcciones(direccion, dato[0])
+
+                    else: #ERROR 
+                        dato = nemonico[0]
+                        tam = (int(dato[0]) - 1) * 2
+                        lineas.append(Linea(palabra, "", True, "Parametro Invalido", direccion, dato[-tam:])) #Guarda IMM con ERROR de Parametro
+                        direccion = suma_direcciones(direccion, dato[0])
+                        pass
                 pass
+
+
+#------------------------------------------------------------- PARAMETROS VÁLIDOS -----------------------------------------------------------------
+                
+            elif(palabra == "ORG"):
+                direccion = x
+                lineas.append(Linea(palabra, x, False, None, "", ""))
+
             else:
-                x = ident_parametro(parametro)
-                if(x == False):             #ERROR Parametro invalido
-                    pass
+                if(palabra in nems):
+                    nemonico = nems[palabra]
+                    if(x[0] == "#"):
+                        if(nemonico[0] != None):
+                            x = x.replace("#", "")
+                            dato = nemonico[0]
+                            tam = (int(dato[0]) - 1) * 2
+                            lineas.append(Linea(palabra, x, True, None, direccion, dato[-tam:])) #Guarda IMM
+                            direccion = suma_direcciones(direccion, dato[0])
+                        
+                        elif(nemonico[1] != None):
+                            dato = nemonico[1]
+                            tam = (int(dato[0]) - 1) * 2
+                            
+                            lineas.append( Linea(palabra, "", False, "Parametro Invalido", direccion, dato[-tam:])) #Guarda DIR
+                            direccion = suma_direcciones(direccion, dato[0])
+
+                        elif(nemonico[2] != None):
+                            dato = nemonico[2]
+                            tam = (int(dato[0]) - 2) * 2
+
+                            lineas.append( Linea(palabra, "", False, "Parametro Invalido", direccion, dato[-tam:])) #Guarda EXT
+                            direccion = suma_direcciones(direccion, dato[0])
+
+                        else: #ERROR 
+                            dato = nemonico[0]
+                            tam = (int(dato[0]) - 1) * 2
+                            lineas.append(Linea(palabra, "", True, "Parametro Invalido", direccion, dato[-tam:])) #Guarda IMM con ERROR de Parametro
+                            direccion = suma_direcciones(direccion, dato[0])
+                            pass
+
+
+                    elif(len(x) <= 2):
+                        if(nemonico[1] != None):
+                            dato = nemonico[1]
+                            tam = (int(dato[0]) - 1) * 2
+                            
+                            lineas.append( Linea(palabra, x, False, None, direccion, dato[-tam:])) #Guarda DIR
+                            direccion = suma_direcciones(direccion, dato[0])
+
+                        elif(nemonico[2] != None):
+                            dato = nemonico[2]
+                            tam = (int(dato[0]) - 2) * 2
+                            x = "00" + x
+
+                            lineas.append( Linea(palabra, x, False, None, direccion, dato[-tam:])) #Guarda EXT
+                            direccion = suma_direcciones(direccion, dato[0])
+
+                        else: #ERROR 
+
+                            pass
                     
-                elif(palabra == "ORG"):
-                    direccion = x
-                    lineas.append(Linea(palabra, x, False, None, "", ""))
+                    elif(len(x) <= 4):
+                        if(nemonico[2] != None):
+                            dato = nemonico[2]
+                            
+                            lineas.append(Linea(palabra, x, False, None, direccion, dato[2:len(dato)])) #Guarda EXT
+                            direccion = suma_direcciones(direccion, dato[0])
 
-                else:
-                    if(palabra in nems):
-                        nemonico = nems[palabra]
-                        if(x[0] == "#"):
-                            if(nemonico[0] != None):
-                                dato = nemonico[0]
-                                lineas.append(Linea(palabra, x, True, None, direccion, dato[2-len(dato)])) #Guarda IMM
-                                direccion = suma_direcciones(direccion, dato[0])
+                        elif(nemonico[1] != None):
+                            dato = nemonico[1]
+                            
+                            lineas.append(Linea(palabra, x, False, "Fuera de Rango", direccion, dato[2:len(dato)])) #Guarda DIR con ERROR
+                            direccion = suma_direcciones(direccion, dato[0])
 
+                        else: #ERROR
 
-                        elif(len(x) <= 2):
-                            if(nemonico[1] != None):
-                                dato = nemonico[1]
-                                
-                                lineas.append( Linea(palabra, x, False, None, direccion, dato[2:len(dato)])) #Guarda DIR
-                                direccion = suma_direcciones(direccion, dato[0])
-
-                            elif(nemonico[2] != None):
-                                dato = nemonico[2]
-                                
-                                lineas.append( Linea(palabra, x, False, None, direccion, dato[2:len(dato)])) #Guarda EXT
-                                direccion = suma_direcciones(direccion, dato[0])
-
-                            else: #ERROR 
-
-                                pass
-                        
-                        elif(len(x) <= 4):
-                            if(nemonico[2] != None):
-                                dato = nemonico[2]
-                                
-                                lineas.append(Linea(palabra, x, False, None, direccion, dato[2:len(dato)])) #Guarda EXT
-                                direccion = suma_direcciones(direccion, dato[0])
-
-                            elif(nemonico[1] != None):
-                                dato = nemonico[1]
-                                
-                                lineas.append(Linea(palabra, x, False, "Fuera de Rango", direccion, dato[2:len(dato)])) #Guarda DIR con ERROR
-                                direccion = suma_direcciones(direccion, dato[0])
-
-                            else: #ERROR
-
-                                pass
+                            pass
 
 
-                    elif(palabra in inherentes):
-                        
-                        lineas.append(Linea(palabra, x, False, "Parametro Invalido", direccion, inherentes[palabra])) #Guarda INH con error
-                        direccion = suma_direcciones(direccion, len(inherentes[palabra]) / 2)
+                elif(palabra in inherentes):
+                    
+                    lineas.append(Linea(palabra, x, False, "Parametro Invalido", direccion, inherentes[palabra])) #Guarda INH con error
+                    direccion = suma_direcciones(direccion, len(inherentes[palabra]) / 2)
 
-                    elif(palabra in rels):  #
-                        direccion = suma_direcciones(direccion, 2)
-                        if(len(x) <= 4):
-                            lineas.append(Linea(palabra, x, False, None, direccion, rels[palabra])) #Guard REL
-                        
-                        else:
-                            lineas.append(Linea(palabra, x, "Fuera de Rango", None, direccion, rels[palabra])) #Guarda REL con ERROR
+                elif(palabra in rels):  #
+                    
+                    if(len(x) <= 4):
+                        lineas.append(Linea(palabra, x, False, None, direccion, rels[palabra])) #Guard REL
+                    
+                    else:
+                        lineas.append(Linea(palabra, x, "Fuera de Rango", None, direccion, rels[palabra])) #Guarda REL con ERROR
+                    direccion = suma_direcciones(direccion, 2)
 
 
         elif(palabra == "ORG"):
@@ -139,7 +197,7 @@ def primera_lectura(archivo):
             pass
 
         elif(palabra == "END"):
-
+            lineas.append( Linea(palabra, "", False, None, direccion, ""))
             pass
 
         elif(palabra in inherentes):
