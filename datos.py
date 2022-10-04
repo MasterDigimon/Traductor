@@ -12,4 +12,19 @@ class Linea:
         self.direccion = _direccion
         self.codigo = codigo
 
+    def actualizar_codigos(self):
+        tam = 0
+        if(self.palabra in nems and self.error == None):
+            
+            diversos = nems[self.palabra][0]
+            self.codigo += nems[self.palabra][-tam:]
+
+        elif(self.palabra in inherentes):
+            pass
+        
+        elif(self.palabra in rels):
+            pass
+
+
+    
 

@@ -163,8 +163,9 @@ def escritura(lineas, original):
     cont = 0
     texto = ""
     for linea in lineas:
+        linea.actualizar_codigos()
         if(linea.error == None):
-            texto += str(linea.direccion) + "  " + str(linea.codigo)
+            texto += str(linea.direccion) + "  " + str(linea.codigo)# + str(linea.parametro)
         else:
             texto += str(linea.direccion) + "  " + linea.error
         for i in range(len(texto), 31):
@@ -184,8 +185,6 @@ def escritura(lineas, original):
 
     pass
 
-def busqueda_nem():
-    pass
 
 def ident_parametro(parametro):
     n_parametro = ""
