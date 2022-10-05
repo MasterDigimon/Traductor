@@ -16,7 +16,7 @@ class Linea:
     def actualizar_codigos(self):
         tam = 0
         if(self.palabra in nems and self.error == None):
-            self.codigo += self.parametro
+            self.codigo += self.parametro[0]
 
         elif(self.palabra in inherentes):
             pass
@@ -30,7 +30,7 @@ class Linea:
     
 
     def calcular_relativos(self):
-        resta = int(self.parametro, 16) - int(self.direccion,16) - 2
+        resta = int(self.parametro[0], 16) - int(self.direccion,16) - 2
         if(resta < 0 and abs(resta) <= 128):
             nuevo_num = 255
             for i in range(1, abs(resta)):

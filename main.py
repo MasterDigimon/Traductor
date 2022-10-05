@@ -36,7 +36,7 @@ def primera_lectura(archivo):
     etiquetas = {}
     direccion = None
     palabra = ""
-    parametro = ""
+    parametro = [""]
     cont = 0
     cont_lineas = 0
     lineas = []
@@ -61,21 +61,28 @@ def primera_lectura(archivo):
                 cont = 0
             elif(ch != " " and cont == 1):
                 palabra += ch
-            elif(ch != " " and cont == 2):
-                parametro += ch
+            elif(ch != " " and cont >= 2):
+                parametro[cont - 2] += ch
+            elif(ch == "," and cont >= 2):
+                cont += 1
+                parametro.append("")
 
-        if(parametro != ""):
-            
-            if(parametro in etiquetas): #Etiquetas como parametro
-                parametro = "$" + etiquetas[parametro]
+
+        if(parametro[0] != ""):
+            for p in range(0, len(parametro)):
+                if(parametro[p] in etiquetas): #Etiquetas como parametro
+                    parametro[p] = "$" + etiquetas[parametro[p]]
             
 
 
             x = ident_parametro(parametro)
-            if(x == False):             #ERROR Parametro invalido
+
+#------------------------------------------------------------- PARAMETROS INVÁLIDOS -----------------------------------------------------------------
+
+            if(False == x):             #ERROR Parametro invalido
                 if(palabra in nems):
                     nemonico = nems[palabra]
-                    if(parametro[0] == "#"):
+                    if(parametro[0][0] == "#"):
                         if(nemonico[0] != None):
                             dato = nemonico[0]
                             tam = (int(dato[0]) - 1) * 2
@@ -108,7 +115,7 @@ def primera_lectura(archivo):
 #------------------------------------------------------------- PARAMETROS VÁLIDOS -----------------------------------------------------------------
                 
             elif(palabra == "ORG"):
-                direccion = x
+                direccion = x[0]
                 lineas.append(Linea(palabra, x, False, None, "", ""))
 
             elif(palabra == "EQU"):
@@ -119,18 +126,22 @@ def primera_lectura(archivo):
             else:
                 if(palabra in nems):
                     nemonico = nems[palabra]
-                    if(x[0] == "#"):
+                    if(x[0][0] == "#"):
                         if(nemonico[0] != None):
-                            x = x.replace("#", "")
+                            x[0] = x[0].replace("#", "")
                             dato = nemonico[0]
                             tam = (int(dato[0]) - 1) * 2
+                            if(etiqueta != ""):
+                                etiquetas[etiqueta] = direccion
                             lineas.append(Linea(palabra, x, True, None, direccion, dato[-tam:])) #Guarda IMM
+                            
                             direccion = suma_direcciones(direccion, dato[0])
                         
                         elif(nemonico[1] != None):
                             dato = nemonico[1]
                             tam = (int(dato[0]) - 1) * 2
-                            
+                            if(etiqueta != ""):
+                                etiquetas[etiqueta] = direccion
                             lineas.append( Linea(palabra, "", False, "Parametro Invalido", direccion, dato[-tam:])) #Guarda DIR
                             direccion = suma_direcciones(direccion, dato[0])
 
@@ -138,30 +149,38 @@ def primera_lectura(archivo):
                             dato = nemonico[2]
                             tam = (int(dato[0]) - 2) * 2
 
+                            if(etiqueta != ""):
+                                etiquetas[etiqueta] = direccion
                             lineas.append( Linea(palabra, "", False, "Parametro Invalido", direccion, dato[-tam:])) #Guarda EXT
                             direccion = suma_direcciones(direccion, dato[0])
 
                         else: #ERROR 
                             dato = nemonico[0]
                             tam = (int(dato[0]) - 1) * 2
+
+                            if(etiqueta != ""):
+                                etiquetas[etiqueta] = direccion
                             lineas.append(Linea(palabra, "", True, "Parametro Invalido", direccion, dato[-tam:])) #Guarda IMM con ERROR de Parametro
                             direccion = suma_direcciones(direccion, dato[0])
                             pass
 
-
-                    elif(len(x) <= 2):
+                    elif(len(x[0]) <= 2):
                         if(nemonico[1] != None):
                             dato = nemonico[1]
                             tam = (int(dato[0]) - 1) * 2
                             
+                            if(etiqueta != ""):
+                                etiquetas[etiqueta] = direccion
                             lineas.append( Linea(palabra, x, False, None, direccion, dato[-tam:])) #Guarda DIR
                             direccion = suma_direcciones(direccion, dato[0])
 
                         elif(nemonico[2] != None):
                             dato = nemonico[2]
                             tam = (int(dato[0]) - 2) * 2
-                            x = "00" + x
-
+                            x[0] = "00" + x[0]
+                            
+                            if(etiqueta != ""):
+                                etiquetas[etiqueta] = direccion
                             lineas.append( Linea(palabra, x, False, None, direccion, dato[-tam:])) #Guarda EXT
                             direccion = suma_direcciones(direccion, dato[0])
 
@@ -169,16 +188,20 @@ def primera_lectura(archivo):
 
                             pass
                     
-                    elif(len(x) <= 4):
+                    elif(len(x[0]) <= 4):
                         if(nemonico[2] != None):
                             dato = nemonico[2]
                             
+                            if(etiqueta != ""):
+                                etiquetas[etiqueta] = direccion
                             lineas.append(Linea(palabra, x, False, None, direccion, dato[2:len(dato)])) #Guarda EXT
                             direccion = suma_direcciones(direccion, dato[0])
 
                         elif(nemonico[1] != None):
                             dato = nemonico[1]
                             
+                            if(etiqueta != ""):
+                                etiquetas[etiqueta] = direccion
                             lineas.append(Linea(palabra, x, False, "Fuera de Rango", direccion, dato[2:len(dato)])) #Guarda DIR con ERROR
                             direccion = suma_direcciones(direccion, dato[0])
 
@@ -189,47 +212,66 @@ def primera_lectura(archivo):
 
                 elif(palabra in inherentes):
                     
+                    if(etiqueta != ""):
+                                etiquetas[etiqueta] = direccion
                     lineas.append(Linea(palabra, x, False, "Parametro Invalido", direccion, inherentes[palabra])) #Guarda INH con error
                     direccion = suma_direcciones(direccion, len(inherentes[palabra]) / 2)
 
                 elif(palabra in rels):  #
                     
-                    if(len(x) <= 4):
+                    if(len(x[0]) <= 4):
+
+                        if(etiqueta != ""):
+                                etiquetas[etiqueta] = direccion
                         lineas.append(Linea(palabra, x, False, None, direccion, rels[palabra])) #Guard REL
                     
                     else:
+                        if(etiqueta != ""):
+                                etiquetas[etiqueta] = direccion
                         lineas.append(Linea(palabra, x, "Fuera de Rango", None, direccion, rels[palabra])) #Guarda REL con ERROR
                     direccion = suma_direcciones(direccion, 2)
 
+#------------------------------------------------------------- SIN PARAMETROS -----------------------------------------------------------------
 
         elif(palabra == "ORG"):
+            if(etiqueta != ""):
+                etiquetas[etiqueta] = direccion
             lineas.append( Linea(palabra, parametro, False, "Parametro Invalido", direccion, None))
             pass
 
         elif(palabra == "END"):
+            if(etiqueta != ""):
+                etiquetas[etiqueta] = direccion
             lineas.append( Linea(palabra, "", False, None, direccion, ""))
             pass
 
         elif(palabra == "START"):
+            if(etiqueta != ""):
+                etiquetas[etiqueta] = direccion
             lineas.append( Linea(palabra, "", False, None, direccion, ""))
             direccion = "0000"
             pass
 
         elif(palabra in inherentes):
             
+            if(etiqueta != ""):
+                etiquetas[etiqueta] = direccion
             lineas.append(Linea(palabra, x, False, None, direccion, inherentes[palabra])) #Guarda INH
             direccion = suma_direcciones(direccion, len(inherentes[palabra]) / 2)
 
         cont_lineas += 1
         palabra = ""
-        parametro = ""
+        parametro = [""]
         cont = 0
+        etiqueta = ""
 
     escritura(lineas, archivo)
             
     pass
 
 def escritura(lineas, original):
+    if(os.path.exists("archivo.txt")):
+        os.remove("archivo.txt")
     archivo = open("archivo.txt", "w")
     original.seek(0)
     linea_original = ""
@@ -261,41 +303,44 @@ def escritura(lineas, original):
 
 def ident_parametro(parametro):
     n_parametro = ""
-    if(parametro[0] == "#"): #Comprueba IMM
-        n_parametro += "#"
-        parametro = parametro.replace("#", "")
+    n_p = []
+    for p in parametro:
+        if(p[0] == "#"): #Comprueba IMM
+            n_parametro += "#"
+            p = p.replace("#", "")
 
-    if(parametro[0] == "$"): #Comprueba Hexadecimales
-        num = comp_hex(parametro)
-        if(num == False):
-            return False
+        if(p[0] == "$"): #Comprueba Hexadecimales
+            num = comp_hex(p)
+            if(num == False):
+                return False
+            
+            n_parametro += num
+
+        elif(p[0] == "@"): #Comprueba Octales
+            num = oct_hex(p)
+            if(num == False):
+                return False
+            
+            n_parametro += num
+
+        elif(p[0] == "%"): #Comprueba Binarios
+            num = bin_hex(p)
+            if(num == False):
+                return False
+            
+            n_parametro += num
+
+        else: #Comprueba Decimales
+            num = dec_hex(p)
+            if(num == False):
+                return False
+            
+            n_parametro += num
         
-        n_parametro += num
-
-    elif(parametro[0] == "@"): #Comprueba Octales
-        num = oct_hex(parametro)
-        if(num == False):
-            return False
-        
-        n_parametro += num
-
-    elif(parametro[0] == "%"): #Comprueba Binarios
-        num = bin_hex(parametro)
-        if(num == False):
-            return False
-        
-        n_parametro += num
-
-    else: #Comprueba Decimales
-        num = dec_hex(parametro)
-        if(num == False):
-            return False
-        
-        n_parametro += num
+        n_p.append(n_parametro)
 
 
-
-    return n_parametro
+    return n_p
 
 def oct_hex(octal:string):
     nuevo = octal.replace("@", "")
