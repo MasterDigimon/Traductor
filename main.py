@@ -41,6 +41,7 @@ def primera_lectura(archivo):
     cont_lineas = 0
     lineas = []
     nemonico = []
+    etiqueta = ""
 
     for linea in archivo:
         linea = linea.replace('\n', '')
@@ -54,7 +55,8 @@ def primera_lectura(archivo):
                 cont += 1
                 palabra += ch
             elif(ch == ":" and cont == 1):
-                etiquetas[palabra] = direccion
+                #etiquetas[palabra] = direccion
+                etiqueta = palabra
                 palabra = ""
                 cont = 0
             elif(ch != " " and cont == 1):
@@ -63,8 +65,11 @@ def primera_lectura(archivo):
                 parametro += ch
 
         if(parametro != ""):
+            
             if(parametro in etiquetas): #Etiquetas como parametro
                 parametro = "$" + etiquetas[parametro]
+            
+
 
             x = ident_parametro(parametro)
             if(x == False):             #ERROR Parametro invalido
@@ -105,6 +110,11 @@ def primera_lectura(archivo):
             elif(palabra == "ORG"):
                 direccion = x
                 lineas.append(Linea(palabra, x, False, None, "", ""))
+
+            elif(palabra == "EQU"):
+                etiquetas[etiqueta] = parametro
+                lineas.append(Linea("", "", False, None, "", ""))
+                pass
 
             else:
                 if(palabra in nems):
@@ -198,6 +208,11 @@ def primera_lectura(archivo):
 
         elif(palabra == "END"):
             lineas.append( Linea(palabra, "", False, None, direccion, ""))
+            pass
+
+        elif(palabra == "START"):
+            lineas.append( Linea(palabra, "", False, None, direccion, ""))
+            direccion = "0000"
             pass
 
         elif(palabra in inherentes):

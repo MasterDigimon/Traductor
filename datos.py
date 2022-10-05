@@ -25,6 +25,8 @@ class Linea:
             dato = self.calcular_relativos()
             self.codigo += dato
             pass
+
+
     
 
     def calcular_relativos(self):

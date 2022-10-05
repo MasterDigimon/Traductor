@@ -1,14 +1,15 @@
                                      ORG $4000
 4000  1806                           ABA
-4002  Parametro Invalido             ABA 15
-4004  8914                           ADCA #20
-4006  Parametro Invalido             ADCA #-20
-4008  9914                           ADCA 20
-400A  9910                           ADCA @20
-400C  F91000                         ADCB $1000
-400F  8B7B                     ET1:      ADDA #123
-4011  Parametro Invalido             ASL #20
-4014  780010                         ASL @20
-4017  24F6                           BCC ET1
-4019  00                             BGND      
-401A                           FIN:      END
+                               ET2:      EQU $4000
+4002                                 START
+0000  Parametro Invalido             ABA 15
+2  8914                              ADCA #20
+4  Parametro Invalido                ADCA #-20
+6  9914                              ADCA 20
+8  9910                              ADCA @20
+A  F91000                            ADCB $1000
+D  8B7B                        ET1:      ADDA #123
+F  Parametro Invalido                ASL #20
+12  780010                           ASL @20
+15  00                               BCC ET1
+16                                   BGND      
