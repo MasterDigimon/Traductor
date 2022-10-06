@@ -68,11 +68,7 @@ def primera_lectura(archivo):
                 parametro.append("")
 
 
-<<<<<<< HEAD
         if(parametro[0] != "" and len(parametro == 1)):
-=======
-        if(parametro[0] != ""):
->>>>>>> 05583a41d5e3576565e84d73149fb0ff8a85f34d
             for p in range(0, len(parametro)):
                 if(parametro[p] in etiquetas): #Etiquetas como parametro
                     parametro[p] = "$" + etiquetas[parametro[p]]
