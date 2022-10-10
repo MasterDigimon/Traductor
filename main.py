@@ -44,31 +44,34 @@ def primera_lectura(archivo):
     etiqueta = ""
 
     for linea in archivo:
-        linea = linea.replace('\n', '')
-        linea = linea.replace('\t', '')
+        
         for ch in linea:
-            if(ch == '\n' or ch == '\t'):
-                pass
-            elif(ch == " " and cont == 1):
+            if(ch == " " and cont == 1):
                 cont = 2
             elif(ch != " " and cont == 0):
                 cont += 1
                 palabra += ch
-            elif(ch == ":" and cont == 1):
+            elif((ch == ":" or ch == "\t")and cont == 1):
                 #etiquetas[palabra] = direccion
                 etiqueta = palabra
                 palabra = ""
                 cont = 0
+            elif(ch == '\n' or ch == '\t'):
+                pass
             elif(ch != " " and cont == 1):
                 palabra += ch
-            elif(ch != " " and cont >= 2):
-                parametro[cont - 2] += ch
             elif(ch == "," and cont >= 2):
                 cont += 1
                 parametro.append("")
+            elif(ch != " " and cont >= 2):
+                parametro[cont - 2] += ch
+            
+
+        palabra = palabra.replace('\n', '')
+        palabra = palabra.replace('\t', '')
 
 
-        if(parametro[0] != "" and len(parametro == 1)):
+        if(parametro[0] != "" and len(parametro) == 1):
             for p in range(0, len(parametro)):
                 if(parametro[p] in etiquetas): #Etiquetas como parametro
                     parametro[p] = "$" + etiquetas[parametro[p]]
@@ -126,22 +129,43 @@ def primera_lectura(archivo):
             elif(palabra == "DC.B"):
                 if(etiqueta != ""):
                     etiquetas[etiqueta] = direccion
+                codigo = ""
+                if(parametro[0] == ""):
+                    codigo += "00"
+                elif(int(x[0], 16) <= 255):
+                    codigo += x[0][-2:]
+                    if(len(codigo) == 1):
+                        codigo = "0" + codigo
 
-                lineas.append(Linea("", x[0], False, None, direccion,"00"))
+                lineas.append(Linea("", "", False, None, direccion,codigo))
                 direccion = suma_direcciones(direccion, 1)
-
-                pass
 
             elif(palabra == "DC.W"):
                 if(etiqueta != ""):
                     etiquetas[etiqueta] = direccion
+                codigo = ""
+                if(parametro[0] == ""):
+                    codigo += "0000"
+                elif(int(x[0], 16)):
+                    codigo += x[0][-4:]
+                    for i in range(len(codigo), 4):
+                        codigo = "0" + codigo
 
-                lineas.append(Linea("", x[0], False, None, direccion,"0000"))
+                lineas.append(Linea("", "", False, None, direccion,codigo))
                 direccion = suma_direcciones(direccion, 2)
 
+            elif(palabra == "BSZ"):
+                if(etiqueta != ""):
+                    etiquetas[etiqueta] = direccion
+                codigo = ""
                 
+                for i in range(0,int (parametro[0])):
+                    codigo += "00"
+                    
+                lineas.append(Linea("", "", False, None, direccion,codigo))
+                direccion = suma_direcciones(direccion, len(codigo)/ 2)
 
-                pass
+
 
             else:
                 if(palabra in nems):
@@ -248,25 +272,73 @@ def primera_lectura(archivo):
                     else:
                         if(etiqueta != ""):
                                 etiquetas[etiqueta] = direccion
-                        lineas.append(Linea(palabra, x, "Fuera de Rango", None, direccion, rels[palabra])) #Guarda REL con ERROR
+                        lineas.append(Linea(palabra, x,None , "Fuera de Rango", direccion, rels[palabra])) #Guarda REL con ERROR
                     direccion = suma_direcciones(direccion, 2)
 
         elif(len(parametro) > 1):
             codigo = ""
+            temp = ""
             if(palabra == "DC.B"):
                 for p in parametro:
                     if(p == ""):
                         codigo += "00"
-                    elif(int(p)):
-                        pass
+                    elif(int(p) <= 255):
+                        temp += hex(int(p)).replace("0x", "")[-2:]
+                        if(len(temp) == 1):
+                            codigo += "0"
+                        codigo += temp
+                        temp = ""
+                lineas.append(Linea(palabra, parametro, None, None, direccion, codigo.upper()))
+                direccion = suma_direcciones(direccion, len(parametro))
+
 
                     
 
             elif(palabra ==  "DC.W"):
+                for p in parametro:
+                    temp = ""
+                    if(p == ""):
+                        codigo += "0000"
+                    elif(int(p) <= 65535):
+                        temp += hex(int(p)).replace("0x", "")[-4:]
+                        if(len(temp) < 4):
+                            for i in range (len(temp), 4):
+                                codigo += "0"
+                        codigo += temp
+                lineas.append(Linea(palabra, parametro, None, None, direccion, codigo.upper()))
+                direccion = suma_direcciones(direccion, len(parametro)*2)
                 pass
+
+            elif(palabra == "FILL"):
+                codigo = ""
+                if(len(parametro) > 2):
+
+                    pass
+                else:
+                    for i in range(0, int(parametro[1])):
+                        temp = hex(int(parametro[0])).replace("0x", "").upper()[-2:]
+                        if(len(temp) == 1):
+                            codigo += "0"
+                        codigo += temp
+
+                    lineas.append(Linea(palabra, parametro, None, None, direccion, codigo))
+                    direccion = suma_direcciones(direccion, len(codigo)/2)
+
 
 
 #------------------------------------------------------------- SIN PARAMETROS -----------------------------------------------------------------
+        elif(palabra == "DC.B"):
+
+            lineas.append(Linea(palabra, parametro, None, None, direccion, "00"))
+            direccion = suma_direcciones(direccion, 1)
+
+
+                
+
+        elif(palabra ==  "DC.W"):
+                
+            lineas.append(Linea(palabra, parametro, None, None, direccion, "0000"))
+            direccion = suma_direcciones(direccion, 2)
 
         elif(palabra == "ORG"):
             if(etiqueta != ""):
@@ -286,6 +358,7 @@ def primera_lectura(archivo):
             lineas.append( Linea(palabra, "", False, None, direccion, ""))
             direccion = "0000"
             pass
+
 
         elif(palabra in inherentes):
             
@@ -426,6 +499,8 @@ def suma_direcciones(dir1, dir2):
     dirX = int(dir1, 16) + int(dir2)
     dirY = hex(dirX)
     dirZ = dirY.replace("0x", "")
+    for i in range(len(dirZ), 4):
+        dirZ = "0" + dirZ
     return dirZ.upper()
 
 
