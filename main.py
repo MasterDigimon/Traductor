@@ -251,6 +251,21 @@ def primera_lectura(archivo):
                         lineas.append(Linea(palabra, x, "Fuera de Rango", None, direccion, rels[palabra])) #Guarda REL con ERROR
                     direccion = suma_direcciones(direccion, 2)
 
+        elif(len(parametro) > 1):
+            codigo = ""
+            if(palabra == "DC.B"):
+                for p in parametro:
+                    if(p == ""):
+                        codigo += "00"
+                    elif(int(p)):
+                        pass
+
+                    
+
+            elif(palabra ==  "DC.W"):
+                pass
+
+
 #------------------------------------------------------------- SIN PARAMETROS -----------------------------------------------------------------
 
         elif(palabra == "ORG"):
