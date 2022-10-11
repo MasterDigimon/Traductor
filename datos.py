@@ -3,6 +3,7 @@ nems = {"ADCA":["2-89", "2-99", "3-B2"], "ADCB":["2-C9", "2-D9", "3-F9"], "ADDA"
 # 0 - IMM     1 - DIR     2 - EXT
 inherentes = {"ABA": "1806", "ASLA" : "48", "ASLB": "58", "ASLD": "59", "ASRA":"47", "ASRB":"57", "BGND":"00"}
 rels = {"BCC":"24", "BCS":"25", "BEQ":"27", "BGE":"2C", "BGT":"2E", "BHI":"22", "BHS":"24"}
+ascii_X = {"H": "48", "O":"4F", "L":"4C", "A": "41"}
 
 class Linea:
     def __init__(self, _palabra, _parametro, _direccionamiento, _error, _direccion, codigo):
@@ -16,6 +17,8 @@ class Linea:
     def actualizar_codigos(self):
         tam = 0
         if(self.palabra in nems and self.error == None):
+            if(len(self.parametro) == 1):
+                self.codigo += "0"
             self.codigo += self.parametro[0]
 
         elif(self.palabra in inherentes):
@@ -23,6 +26,8 @@ class Linea:
         
         elif(self.palabra in rels):
             dato = self.calcular_relativos()
+            if(len(dato) == 1):
+                self.codigo += "0"
             self.codigo += dato
             pass
 

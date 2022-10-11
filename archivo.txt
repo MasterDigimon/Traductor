@@ -1,0 +1,13 @@
+                                     ORG $4000
+4000  1806                           ABA
+4002  Parametro Invalido             ABA 15
+4004  89014                          ADCA #20
+4006  Parametro Invalido             ADCA #-20
+4008  99014                          ADCA 20
+400A  99010                          ADCA @20
+400C  F901000                        ADCB $1000
+400F  8B07B                    ET1:      ADDA #123
+4011  Parametro Invalido             ASL #20
+4014  7800010                        ASL @20
+4017  24F6                           BCC ET1
+4019                                 BGND      
