@@ -51,11 +51,13 @@ def primera_lectura(archivo):
             elif(ch != " " and cont == 0):
                 cont += 1
                 palabra += ch
-            elif((ch == ":" or ch == "\t")and cont == 1):
+            elif(((ch == ":" or ch == "\t")or ch == "\t")and cont == 1):
                 #etiquetas[palabra] = direccion
                 etiqueta = palabra
                 palabra = ""
                 cont = 0
+            elif(ch == '\n' or ch == '\t'):
+                pass
             elif(ch == '\n' or ch == '\t'):
                 pass
             elif(ch != " " and cont == 1):
@@ -148,6 +150,13 @@ def primera_lectura(archivo):
                     codigo += x[0][-2:]
                     if(len(codigo) == 1):
                         codigo = "0" + codigo
+                codigo = ""
+                if(parametro[0] == ""):
+                    codigo += "00"
+                elif(int(x[0], 16) <= 255):
+                    codigo += x[0][-2:]
+                    if(len(codigo) == 1):
+                        codigo = "0" + codigo
 
                 lineas.append(Linea("", "", False, None, direccion,codigo))
                 direccion = suma_direcciones(direccion, 1)
@@ -166,6 +175,10 @@ def primera_lectura(archivo):
                 lineas.append(Linea("", "", False, None, direccion,codigo))
                 direccion = suma_direcciones(direccion, 2)
 
+            elif(palabra == "BSZ"):
+                if(etiqueta != ""):
+                    etiquetas[etiqueta] = direccion
+                codigo = ""
             elif(palabra == "BSZ"):
                 if(etiqueta != ""):
                     etiquetas[etiqueta] = direccion
@@ -190,8 +203,13 @@ def primera_lectura(archivo):
 
                 lineas.append(Linea("", "", False, None, direccion,codigo))
                 direccion = suma_direcciones(direccion, 1)
+                for i in range(0,int (parametro[0])):
+                    codigo += "00"
+                    
+                lineas.append(Linea("", "", False, None, direccion,codigo))
+                direccion = suma_direcciones(direccion, len(codigo)/ 2)
 
-                pass
+
 
 
 
@@ -386,6 +404,7 @@ def primera_lectura(archivo):
             lineas.append( Linea(palabra, "", False, None, direccion, ""))
             direccion = "0000"
             pass
+
 
 
         elif(palabra in inherentes):
