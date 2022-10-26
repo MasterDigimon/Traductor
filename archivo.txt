@@ -1,28 +1,13 @@
-<<<<<<< HEAD
-                                     ORG $4000
-4000  1806                           ABA
-4002  Parametro Invalido             ABA 15
-4004  89014                          ADCA #20
-4006  Parametro Invalido             ADCA #-20
-4008  99014                          ADCA 20
-400A  99010                          ADCA @20
-400C  F901000                        ADCB $1000
-400F  8B07B                    ET1:      ADDA #123
-4011  Parametro Invalido             ASL #20
-4014  7800010                        ASL @20
-4017  24F6                           BCC ET1
-4019                                 BGND      
-=======
                                E3      EQU 50
                                      ORG $4000
                                E2      EQU 15
-4000  89F                            ADCA #15
+4000  890F                           ADCA #15
 4002  Parametro Invalido             ADCA -15
 4004                                 START
-0000  9996                           ADCA 150
-0002  B25DC                          ADCA 1500
-0005  C38                            ADDD #@10
-0007  D310                           ADDD $10
+0000  99096                          ADCA 150
+0002  B205DC                         ADCA 1500
+0005  C308                           ADDD #@10
+0007  D3010                          ADDD $10
 0009  00                             DC.B
 000A  0A                             DC.B 10
 000B  0A0B                           DC.B 10,11
@@ -30,5 +15,6 @@
 0017  020202                         FILL 2,3
 001A  0000                           DC.W
 001C  00010002                       DC.W 1,2
-0020                                 FCC /HOLA/
->>>>>>> refs/remotes/origin/master
+0020  484F4C41                       FCC /HOLA/
+0024  0A                             FCB 10
+0025                           E1      END

@@ -115,13 +115,13 @@ def primera_lectura(archivo):
                         direccion = suma_direcciones(direccion, dato[0])
                         pass
                 elif(palabra == "FCC"):
-                    codigo = "484F4C41"
+                    codigo = ""
                     
-                    #for i in range(1, len(parametro[0]) -1):
-                    #    temp =  str(int(palabra[i]))
-                    #    if(len(temp) == 1):
-                    #        codigo += "0"
-                    #    codigo += temp
+                    for i in range(1, len(parametro[0]) -1):
+                        temp =  hex(ord(parametro[0][i])).replace("0x", "").upper()
+                        if(len(temp) == 1):
+                            codigo += "0"
+                        codigo += temp
                     
 
                     lineas.append( Linea("", "", False, None, direccion, codigo)) 
@@ -175,10 +175,7 @@ def primera_lectura(archivo):
                 lineas.append(Linea("", "", False, None, direccion,codigo))
                 direccion = suma_direcciones(direccion, 2)
 
-            elif(palabra == "BSZ"):
-                if(etiqueta != ""):
-                    etiquetas[etiqueta] = direccion
-                codigo = ""
+
             elif(palabra == "BSZ"):
                 if(etiqueta != ""):
                     etiquetas[etiqueta] = direccion
@@ -203,15 +200,6 @@ def primera_lectura(archivo):
 
                 lineas.append(Linea("", "", False, None, direccion,codigo))
                 direccion = suma_direcciones(direccion, 1)
-                for i in range(0,int (parametro[0])):
-                    codigo += "00"
-                    
-                lineas.append(Linea("", "", False, None, direccion,codigo))
-                direccion = suma_direcciones(direccion, len(codigo)/ 2)
-
-
-
-
 
             else:
                 if(palabra in nems):
@@ -321,6 +309,8 @@ def primera_lectura(archivo):
                         lineas.append(Linea(palabra, x,None , "Fuera de Rango", direccion, rels[palabra])) #Guarda REL con ERROR
                     direccion = suma_direcciones(direccion, 2)
 
+#------------------------------------------------------------- PARAMETROS MULTIPLES -----------------------------------------------------------------
+
         elif(len(parametro) > 1):
             codigo = ""
             temp = ""
@@ -336,9 +326,6 @@ def primera_lectura(archivo):
                         temp = ""
                 lineas.append(Linea(palabra, parametro, None, None, direccion, codigo.upper()))
                 direccion = suma_direcciones(direccion, len(parametro))
-
-
-                    
 
             elif(palabra ==  "DC.W"):
                 for p in parametro:
@@ -369,6 +356,23 @@ def primera_lectura(archivo):
 
                     lineas.append(Linea(palabra, parametro, None, None, direccion, codigo))
                     direccion = suma_direcciones(direccion, len(codigo)/2)
+                
+            
+            
+            elif(palabra in rels9 and len(parametro) == 2):
+                if(etiqueta != ""):
+                    etiquetas[etiqueta] = direccion
+                codigo = "04"
+
+                if(parametro[0] in ["A", "B", "D", "X", "Y", "SP"]):
+                #if(parametro[0] in ["A", "B", "D", "X", "Y", "SP"] and len(parametro[1]) <= 4):
+                    lineas.append(Linea(palabra, parametro, None, None, direccion, codigo))
+                else:
+                    lineas.append(Linea(palabra, parametro, None, "Parametro Invalido", direccion, codigo))
+
+                direccion = suma_direcciones(direccion, 3)
+                
+                pass
 
 
 

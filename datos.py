@@ -3,7 +3,8 @@ nems = {"ADCA":["2-89", "2-99", "3-B2"], "ADCB":["2-C9", "2-D9", "3-F9"], "ADDA"
 # 0 - IMM     1 - DIR     2 - EXT
 inherentes = {"ABA": "1806", "ASLA" : "48", "ASLB": "58", "ASLD": "59", "ASRA":"47", "ASRB":"57", "BGND":"00"}
 rels = {"BCC":"24", "BCS":"25", "BEQ":"27", "BGE":"2C", "BGT":"2E", "BHI":"22", "BHS":"24"}
-ascii_X = {"H": "48", "O":"4F", "L":"4C", "A": "41"}
+rels9 = {"DBNE": "20" , "IBNE": "A0", "IBEQ": "80" , "DBEQ": "00" }
+# [ A = 0 , B = 1 , D = 4 , X = 5 , Y = 6 , SP = 7 ] TODOS EMPIEZAN CON 04
 
 class Linea:
     def __init__(self, _palabra, _parametro, _direccionamiento, _error, _direccion, codigo):
@@ -47,6 +48,20 @@ class Linea:
             return final
         else:
             pass
+        pass
+
+    def calcular_rel9(self):
+        temp = rels9[self.palabra]
+        if(self.parametro[1] == ""):
+            self.parametro[1] = "0"
+
+        if(self.parametro[1] < 0):
+            temp = hex(int(temp, 16) + 16).replace("0x", "").upper()
+        
+        if(self.parametro[0] == "B"):
+
+            pass
+
         pass
 
 
