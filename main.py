@@ -1,3 +1,4 @@
+from ast import For
 import os
 import string
 from datos import *
@@ -364,14 +365,33 @@ def primera_lectura(archivo):
                     etiquetas[etiqueta] = direccion
                 codigo = "04"
 
-                if(parametro[0] in ["A", "B", "D", "X", "Y", "SP"]):
-                #if(parametro[0] in ["A", "B", "D", "X", "Y", "SP"] and len(parametro[1]) <= 4):
+                x = transformar_parametro(parametro[1])
+
+                if(parametro[0] in ["A", "B", "D", "X", "Y", "SP"] and x != False):
+                    parametro[1] = x
                     lineas.append(Linea(palabra, parametro, None, None, direccion, codigo))
                 else:
                     lineas.append(Linea(palabra, parametro, None, "Parametro Invalido", direccion, codigo))
 
                 direccion = suma_direcciones(direccion, 3)
                 
+                pass
+            
+            elif(palabra in indexados):
+                if(etiqueta != ""):
+                    etiquetas[etiqueta] = direccion
+
+                codigo = ident_index(parametro)
+                if(codigo == False):
+                    lineas.append(Linea(palabra, parametro, None, "Parametro Invalido", direccion, codigo))
+                    direccion = suma_direcciones(direccion, 2)
+
+                else:
+                    codigo = indexados[palabra] + codigo
+
+                    lineas.append(Linea(palabra, parametro, None, None, direccion, codigo))
+                    direccion = suma_direcciones(direccion, len(codigo) / 2)
+
                 pass
 
 
@@ -459,6 +479,30 @@ def escritura(lineas, original):
 
     pass
 
+def transformar_parametro(parametro):
+    if(parametro[0] == "$"):#Comprueba Hexadecimales
+        num = comp_hex(parametro)
+        if(num == False):
+            return False
+        
+    elif(parametro[0] == "@"):#Comprueba Octales
+        num = oct_hex(parametro)
+        if(num == False):
+            return False
+        
+    elif(parametro[0] == "%"): #Comprueba Binarios
+        num = bin_hex(parametro)
+        if(num == False):
+            return False
+        
+
+    else: #Comprueba Decimales
+        num = dec_hex(parametro)
+        if(num == False):
+            return False
+
+    return num
+
 
 def ident_parametro(parametro):
     n_parametro = ""
@@ -500,6 +544,101 @@ def ident_parametro(parametro):
 
 
     return n_p
+
+def ident_index(parametros):
+    codigo = ""
+    corcehetes = False
+    negativo = False 
+    if(parametros[0] == ""):
+        parametros[0] = "0"
+
+    if("[" == parametros[0][0] and "]" == parametros[1][len(parametros[1]) - 1]):
+        corcehetes = True
+        parametros[0] = parametros[0][1:]
+        parametros[1] = parametros[1][:len(parametros[1]) - 1]
+    
+    if(len(parametros[0]) >= 2):
+        if("-" == parametros[0][0]):
+            negativo = True
+            parametros[0] = parametros[0][1:]
+
+        elif("-" == parametros[0][1] and parametros[0][0] in "$@%"):
+            negativo = True
+            parametros[0] = parametros[0][1:] + parametros[0][2:]
+
+    if(parametros[1] == "Y"):
+        rr = "01"
+    elif(parametros[1] == "X"):
+        rr = "00"
+    elif(parametros[1] == "SP"):
+        rr = "10"
+    elif(parametros[1] == "PC"):
+        rr = "11"
+    else:
+        return False
+    
+    num = transformar_parametro(parametros[0])
+    if(num == False):
+        return False
+
+    if(int(num, 16) <= 15 and negativo == False and corcehetes == False):#FORMULA 1 Positiva
+        codigo  = rr + "00"
+
+        for i in range(len(bin(int(num, 16)).replace("0b", "")), 4):
+            codigo += "0"
+        
+        codigo += bin(int(num, 16)).replace("0b", "")
+        codigo = hex(int(codigo, 2)).replace("0x", "").upper()
+
+    elif(int(num, 16) <= 16 and negativo == True and corcehetes == False):#FORMULA 1 Negativa
+        codigo  = rr + "01"
+        num = hex(16 - int(num, 16)).replace("0x", "").upper()
+
+        for i in range(len(bin(int(num, 16))), 4):
+            codigo += "0"
+        
+        if(len(num) % 2 == 1):
+            num = "0" + num
+
+        codigo = hex(int(codigo, 2)).replace("0x", "").upper()
+        codigo += num
+        
+        
+        
+    elif(int(num, 16) <= 65535 and negativo == False and corcehetes == False):#FORMULA 2 POSITIVA
+        codigo  = "111" + rr + "0"
+        if(int(num, 16) <= 255):
+            codigo += "00"
+        else:
+            codigo += "10"
+        
+        codigo = hex(int(codigo, 2)).replace("0x", "").upper() + num
+
+    elif(int(num, 16) <= 65536 and negativo and corcehetes == False):#FORMULA 2 NEGATIVA
+        codigo  = "111" + rr + "0"
+        if(int(num, 16) <= 256):
+            num = hex(256 - int(num, 16)).replace("0x", "").upper()
+            codigo += "01"
+        else:
+            num = hex(65536 - int(num, 16)).replace("0x", "").upper()
+            codigo += "11"
+
+        
+        if(len(num) % 2 == 1):
+            num = "0" + num
+
+        codigo = hex(int(codigo, 2)).replace("0x", "").upper() + num
+    
+    elif(int(num, 16) <= 65535 and negativo == False and corcehetes == True): #FORMULA 3
+        codigo  = hex(int("111" + rr + "011", 2)).replace("0x", "").upper()
+
+        for i  in range(len(num), 4):
+            codigo += "0"
+        codigo += num
+
+
+    return codigo
+
 
 def oct_hex(octal:string):
     nuevo = octal.replace("@", "")

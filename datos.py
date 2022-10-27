@@ -5,6 +5,7 @@ inherentes = {"ABA": "1806", "ASLA" : "48", "ASLB": "58", "ASLD": "59", "ASRA":"
 rels = {"BCC":"24", "BCS":"25", "BEQ":"27", "BGE":"2C", "BGT":"2E", "BHI":"22", "BHS":"24"}
 rels9 = {"DBNE": "20" , "IBNE": "A0", "IBEQ": "80" , "DBEQ": "00" }
 # [ A = 0 , B = 1 , D = 4 , X = 5 , Y = 6 , SP = 7 ] TODOS EMPIEZAN CON 04
+indexados = {"LDAA" : "A6" }
 
 class Linea:
     def __init__(self, _palabra, _parametro, _direccionamiento, _error, _direccion, codigo):
@@ -32,6 +33,9 @@ class Linea:
             self.codigo += dato
             pass
 
+        elif(self.palabra in rels9):
+            self.calcular_rel9()
+
 
     
 
@@ -55,12 +59,48 @@ class Linea:
         if(self.parametro[1] == ""):
             self.parametro[1] = "0"
 
-        if(self.parametro[1] < 0):
+        if(int(self.parametro[1], 16) < 0):
             temp = hex(int(temp, 16) + 16).replace("0x", "").upper()
-        
+            
         if(self.parametro[0] == "B"):
+            temp = hex(int(temp, 16) + 1).replace("0x", "").upper()
+            
+        elif(self.parametro[0] == "D"):
+            temp = hex(int(temp, 16) + 4).replace("0x", "").upper()
 
-            pass
+        elif(self.parametro[0] == "X"):
+            temp = hex(int(temp, 16) + 5).replace("0x", "").upper()
+
+        elif(self.parametro[0] == "Y"):
+            temp = hex(int(temp, 16) + 6).replace("0x", "").upper()
+
+        elif(self.parametro[0] == "SP"):
+            temp = hex(int(temp, 16) + 7).replace("0x", "").upper()
+
+        if(len(temp) == 1):
+            temp = "0" + temp
+
+        self.codigo += temp
+
+        resta = hex(int(self.parametro[1], 16) - int(self.direccion,16) - 3).replace("0x", "").upper()
+
+        if(int(resta, 16) < 0):
+            if(int(resta, 16) >= -256):
+                resta = hex(256 + int(resta, 16)).replace("0x", "").upper()
+
+            else: 
+                self.error = "Fuera de Rango"
+
+        if(len(resta) > 2):
+            self.error = "Fuera de Rango"
+
+        elif(len(resta) == 1):
+            resta = "0" + resta
+
+        self.codigo += resta[-2:]
+
+
+
 
         pass
 
