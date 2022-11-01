@@ -1,6 +1,10 @@
                                ORG $4000
-4000  A6F30005                 LDAA [5,SP]
-4004  A685                     LDAA 5, SP
-4006  A69B                     LDAA -5, SP
-4008  A6F201F4                 LDAA 500, SP
-400C                           END
+4000  A681                     LDAA 1, SP
+4002  A69F                     LDAA -1, SP
+4004  A6BF                     LDAA 1, SP-
+4006  A6AF                     LDAA 1, -SP
+4008  A6B0                     LDAA 1, SP+
+400A  A6A0                     LDAA 1, +SP
+400C  A6F6                     LDAA D, SP
+400E  A6F7                     LDAA [D, SP]
+4010                           END

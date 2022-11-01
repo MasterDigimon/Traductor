@@ -549,6 +549,9 @@ def ident_index(parametros):
     codigo = ""
     corcehetes = False
     negativo = False 
+    p_f4 = None
+    aa = None
+    num = None
     if(parametros[0] == ""):
         parametros[0] = "0"
 
@@ -565,6 +568,29 @@ def ident_index(parametros):
         elif("-" == parametros[0][1] and parametros[0][0] in "$@%"):
             negativo = True
             parametros[0] = parametros[0][1:] + parametros[0][2:]
+    
+    if("-" in parametros[1] and negativo == False):
+
+        if(parametros[1][0] == "-"):
+            negativo = True
+            parametros[1] = parametros[1].replace("-", "", 1)
+            p_f4 = "0"
+
+        elif(parametros[1][-1] == "-"):
+            negativo = True
+            p_f4 = "1"
+            parametros[1] = parametros[1].replace("-", "", 1)
+
+    elif("+" in parametros[1] and negativo == False):
+
+        if(parametros[1][0] == "+"):
+            p_f4 = "0"
+            parametros[1] = parametros[1].replace("+", "", 1)
+
+        elif(parametros[1][-1] == "+"):
+            p_f4 = "1"
+            parametros[1] = parametros[1].replace("+", "", 1)
+
 
     if(parametros[1] == "Y"):
         rr = "01"
@@ -574,14 +600,34 @@ def ident_index(parametros):
         rr = "10"
     elif(parametros[1] == "PC"):
         rr = "11"
+    
     else:
         return False
     
-    num = transformar_parametro(parametros[0])
+    if(parametros[0] == "D"):
+        aa = "10"
+
+    elif(parametros[0] == "A"):
+        aa = "00"
+
+    elif(parametros[0] == "B"):
+        aa = "01"
+
+    else:
+        num = transformar_parametro(parametros[0])
+
+
     if(num == False):
         return False
+    
+    if(aa != None and corcehetes == False): #FORMULA 5
+        codigo = hex(int("111" + rr + "1" + aa, 2)).replace("0x", "").upper()
 
-    if(int(num, 16) <= 15 and negativo == False and corcehetes == False):#FORMULA 1 Positiva
+    elif(aa == "10"): #FORMULA 6
+        codigo = hex(int("111" + rr + "111", 2)).replace("0x", "").upper()
+
+
+    elif(int(num, 16) <= 15 and negativo == False and corcehetes == False and p_f4 == None):#FORMULA 1 Positiva
         codigo  = rr + "00"
 
         for i in range(len(bin(int(num, 16)).replace("0b", "")), 4):
@@ -590,22 +636,19 @@ def ident_index(parametros):
         codigo += bin(int(num, 16)).replace("0b", "")
         codigo = hex(int(codigo, 2)).replace("0x", "").upper()
 
-    elif(int(num, 16) <= 16 and negativo == True and corcehetes == False):#FORMULA 1 Negativa
+    elif(int(num, 16) <= 16 and negativo == True and corcehetes == False and p_f4 == None):#FORMULA 1 Negativa
         codigo  = rr + "01"
         num = hex(16 - int(num, 16)).replace("0x", "").upper()
 
         for i in range(len(bin(int(num, 16))), 4):
             codigo += "0"
-        
-        #if(len(num) % 2 == 1):
-        #    num = "0" + num
 
         codigo = hex(int(codigo, 2)).replace("0x", "").upper()
         codigo += num
         
         
         
-    elif(int(num, 16) <= 65535 and negativo == False and corcehetes == False):#FORMULA 2 POSITIVA
+    elif(int(num, 16) <= 65535 and negativo == False and corcehetes == False and p_f4 == None):#FORMULA 2 POSITIVA
         codigo  = "111" + rr + "0"
         if(int(num, 16) <= 255):
             codigo += "00"
@@ -617,7 +660,7 @@ def ident_index(parametros):
         
         codigo = hex(int(codigo, 2)).replace("0x", "").upper() + num
 
-    elif(int(num, 16) <= 65536 and negativo and corcehetes == False):#FORMULA 2 NEGATIVA
+    elif(int(num, 16) <= 65536 and negativo and corcehetes == False and p_f4 == None):#FORMULA 2 NEGATIVA
         codigo  = "111" + rr + "0"
         if(int(num, 16) <= 256):
             num = hex(256 - int(num, 16)).replace("0x", "").upper()
@@ -639,6 +682,13 @@ def ident_index(parametros):
             codigo += "0"
         codigo += num
 
+    elif(int(num, 16) <= 8 and int(num, 16) > 0 and p_f4 != None and rr != "11"): #FORMULA 4
+        codigo = hex(int(rr + "1" + p_f4, 2)).replace("0x", "").upper()
+        
+        if(negativo):
+            codigo += hex(16 - int(num, 16)).replace("0x", "").upper()
+        else: 
+            codigo += hex(int(num, 16) - 1).replace("0x", "").upper()
 
     return codigo
 
