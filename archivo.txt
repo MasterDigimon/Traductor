@@ -1,20 +1,6 @@
-                               E3      EQU 50
-                                     ORG $4000
-                               E2      EQU 15
-4000  890F                           ADCA #15
-4002  Parametro Invalido             ADCA -15
-4004                                 START
-0000  99096                          ADCA 150
-0002  B205DC                         ADCA 1500
-0005  C308                           ADDD #@10
-0007  D3010                          ADDD $10
-0009  00                             DC.B
-000A  0A                             DC.B 10
-000B  0A0B                           DC.B 10,11
-000D  00000000000000000000           BSZ 10
-0017  020202                         FILL 2,3
-001A  0000                           DC.W
-001C  00010002                       DC.W 1,2
-0020  484F4C41                       FCC /HOLA/
-0024  0A                             FCB 10
-0025                           E1      END
+                               ORG $4000
+4000  A6F30005                 LDAA [5,SP]
+4004  A685                     LDAA 5, SP
+4006  A69B                     LDAA -5, SP
+4008  A6F201F4                 LDAA 500, SP
+400C                           END
