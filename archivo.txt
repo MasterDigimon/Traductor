@@ -1,10 +1,8 @@
                                ORG $4000
-4000  A681                     LDAA 1, SP
-4002  A69F                     LDAA -1, SP
-4004  A6BF                     LDAA 1, SP-
-4006  A6AF                     LDAA 1, -SP
-4008  A6B0                     LDAA 1, SP+
-400A  A6A0                     LDAA 1, +SP
-400C  A6F6                     LDAA D, SP
-400E  A6F7                     LDAA [D, SP]
-4010                           END
+4000  26E2                     BNE $3FE4
+4002  1826FFDE                 LBNE $3FE4
+4006  060FE4                   JMP $FE4
+4009  Fuera de Rango           BNE $4100
+400B  182600F1                 LBNE $4100
+400F  064100                   JMP $4100
+4012                           END

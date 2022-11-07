@@ -1,11 +1,12 @@
 
-nems = {"ADCA":["2-89", "2-99", "3-B2"], "ADCB":["2-C9", "2-D9", "3-F9"], "ADDA":["2-8B", "2-9B", "3-BB"], "ADDB":["2-CB", "2-DB", "3-FB"], "ADDD":["2-C3", "2-D3", "3-F3"], "ANDA":["2-84", "2-94", "3-B4"], "ANDB":["2-C4", "2-D4", "3-F4"], "ANDCC":["2-10"], "ASL":[None, None, "3-78"], "ASR":[None, None, "3-77"], "BCLR":[None, "3-4D", "4-1D"], "BITA":["2-85", "2-95", "3-B5"]}
+nems = {"ADCA":["2-89", "2-99", "3-B2"], "ADCB":["2-C9", "2-D9", "3-F9"], "ADDA":["2-8B", "2-9B", "3-BB"], "ADDB":["2-CB", "2-DB", "3-FB"], "ADDD":["2-C3", "2-D3", "3-F3"], "ANDA":["2-84", "2-94", "3-B4"], "ANDB":["2-C4", "2-D4", "3-F4"], "ANDCC":["2-10"], "ASL":[None, None, "3-78"], "ASR":[None, None, "3-77"], "BCLR":[None, "3-4D", "4-1D"], "BITA":["2-85", "2-95", "3-B5"], "JMP" : [None, None, "3-06"]}
 # 0 - IMM     1 - DIR     2 - EXT
 inherentes = {"ABA": "1806", "ASLA" : "48", "ASLB": "58", "ASLD": "59", "ASRA":"47", "ASRB":"57", "BGND":"00"}
-rels = {"BCC":"24", "BCS":"25", "BEQ":"27", "BGE":"2C", "BGT":"2E", "BHI":"22", "BHS":"24"}
+rels = {"BCC":"24", "BCS":"25", "BEQ":"27", "BGE":"2C", "BGT":"2E", "BHI":"22", "BHS":"24", "BNE" : "26"}
 rels9 = {"DBNE": "20" , "IBNE": "A0", "IBEQ": "80" , "DBEQ": "00" }
 # [ A = 0 , B = 1 , D = 4 , X = 5 , Y = 6 , SP = 7 ] TODOS EMPIEZAN CON 04
-indexados = {"LDAA" : "A6" }
+rel16 = {"LBNE" : "1826"}
+indexados = {"LDAA" : "A6" , "JMP" : "05"}
 
 class Linea:
     def __init__(self, _palabra, _parametro, _direccionamiento, _error, _direccion, codigo):
@@ -19,8 +20,13 @@ class Linea:
     def actualizar_codigos(self):
         tam = 0
         if(self.palabra in nems and self.error == None):
-            if(len(self.parametro) == 1):
+
+            if(len(self.parametro[0]) == 1 and self.codigo == nems[self.palabra][1][2:]):
                 self.codigo += "0"
+            elif(len(self.parametro[0]) < 4 and self.codigo == nems[self.palabra][2][2:]):
+                for i in range(len(self.parametro[0]), 4):
+                    self.codigo += "0"
+
             self.codigo += self.parametro[0]
 
         elif(self.palabra in inherentes):
@@ -35,6 +41,11 @@ class Linea:
 
         elif(self.palabra in rels9):
             self.calcular_rel9()
+        
+        elif(self.palabra in rel16):
+            self.cal_rel16()
+
+        pass
 
 
     
@@ -42,16 +53,22 @@ class Linea:
     def calcular_relativos(self):
         resta = int(self.parametro[0], 16) - int(self.direccion,16) - 2
         if(resta < 0 and abs(resta) <= 128):
-            nuevo_num = 255
-            for i in range(1, abs(resta)):
-                nuevo_num -= 1
+            nuevo_num = 256 + resta
             
             final = hex(nuevo_num).replace("0x", "").upper()
             if(len(final) == 1):
                 final = "F" + final
             return final
+        elif(resta >= 0 and resta <= 127):
+    
+            final = hex(resta).replace("0x", "").upper()
+            if(len(final) == 1):
+                final = "0" + final
+
+            return final 
         else:
-            pass
+            self.error = "Fuera de Rango"
+            return ""
         pass
 
     def calcular_rel9(self):
@@ -99,9 +116,26 @@ class Linea:
 
         self.codigo += resta[-2:]
 
+        pass
 
+    def cal_rel16(self):
 
+        resta = int(self.parametro[0], 16) - int(self.direccion,16) - 4
 
+        if(resta < 0 and abs(resta) <= 32768):
+
+            nuevo_num = 65536 + resta
+            final = hex(nuevo_num).replace("0x", "").upper()
+
+            self.codigo =  rel16[self.palabra] + final 
+
+        elif(resta >= 0 and resta <= 32767):
+
+            final = hex(resta).replace("0x", "").upper()
+            for i in range(len(final), 4):
+                final = "0" + final
+
+            self.codigo +=  final   
         pass
 
 

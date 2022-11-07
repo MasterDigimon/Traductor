@@ -310,6 +310,21 @@ def primera_lectura(archivo):
                         lineas.append(Linea(palabra, x,None , "Fuera de Rango", direccion, rels[palabra])) #Guarda REL con ERROR
                     direccion = suma_direcciones(direccion, 2)
 
+                elif(palabra in rel16):  #
+                    
+                    if(len(x[0]) <= 4):
+
+                        if(etiqueta != ""):
+                                etiquetas[etiqueta] = direccion
+                        lineas.append(Linea(palabra, x, False, None, direccion, rel16[palabra])) #Guard REL16
+                    
+                    else:
+                        if(etiqueta != ""):
+                                etiquetas[etiqueta] = direccion
+                        lineas.append(Linea(palabra, x,None , "Fuera de Rango", direccion, rel16[palabra])) #Guarda REL16 con ERROR
+
+                    direccion = suma_direcciones(direccion, 4)
+
 #------------------------------------------------------------- PARAMETROS MULTIPLES -----------------------------------------------------------------
 
         elif(len(parametro) > 1):
