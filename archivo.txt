@@ -1,8 +1,6 @@
                                ORG $4000
-4000  26E2                     BNE $3FE4
-4002  1826FFDE                 LBNE $3FE4
-4006  060FE4                   JMP $FE4
-4009  Fuera de Rango           BNE $4100
-400B  182600F1                 LBNE $4100
-400F  064100                   JMP $4100
-4012                           END
+                               E1      EQU 20
+4000  060014                   JMP E1
+4003  Fuera de Rango           IBNE B, E2
+4006  Parametro Invalido       BNE E2
+4009                           JMP E2

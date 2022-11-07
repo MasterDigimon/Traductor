@@ -137,7 +137,7 @@ def primera_lectura(archivo):
                 lineas.append(Linea(palabra, x, False, None, "", ""))
 
             elif(palabra == "EQU"):
-                etiquetas[etiqueta] = parametro
+                etiquetas[etiqueta] = transformar_parametro(parametro[0])
                 lineas.append(Linea("", "", False, None, "", ""))
                 pass
 
