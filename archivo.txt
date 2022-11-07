@@ -1,6 +1,11 @@
-                               ORG $4000
-                               E1      EQU 20
-4000  060014                   JMP E1
-4003  Fuera de Rango           IBNE B, E2
-4006  Parametro Invalido       BNE E2
-4009                           JMP E2
+                                     ORG $4000
+4000  1806                           ABA
+4002  Parametro Invalido             ABA 15
+4004  8914                           ADCA #20
+4006  C320                           ADDD #$20
+4008  0000000000                     BSZ 5
+400D                           ET1:      START
+0000  Fuera de Rango                 BNE ET1
+0002  18264007                       LBNE ET1
+                               ET2:      EQU $10
+0006  2608                           BNE ET2
