@@ -6,7 +6,7 @@ rels = {"BCC":"24", "BCS":"25", "BEQ":"27", "BGE":"2C", "BGT":"2E", "BHI":"22", 
 rels9 = {"DBNE": "20" , "IBNE": "A0", "IBEQ": "80" , "DBEQ": "00" }
 # [ A = 0 , B = 1 , D = 4 , X = 5 , Y = 6 , SP = 7 ] TODOS EMPIEZAN CON 04
 rel16 = {"LBNE" : "1826"}
-indexados = {"LDAA" : "A6" , "JMP" : "05"}
+indexados = {"LDAA" : "A6" , "JMP" : "05", "ASL" : "68"}
 
 class Linea:
     def __init__(self, _palabra, _parametro, _direccionamiento, _error, _direccion, codigo):
@@ -19,7 +19,7 @@ class Linea:
 
     def actualizar_codigos(self):
         tam = 0
-        if(self.palabra in nems and self.error == None):
+        if(self.palabra in nems and self.error == None and len(self.parametro) == 1):
 
             if(len(self.parametro[0]) == 1 and self.codigo == nems[self.palabra][1][2:]):
                 self.codigo += "0"
@@ -73,12 +73,17 @@ class Linea:
 
     def calcular_rel9(self):
         temp = rels9[self.palabra]
+
+        if(self.error != None):
+            return
+
         if(self.parametro[1] == ""):
             self.parametro[1] = "0"
 
         if(int(self.parametro[1], 16) < 0):
             temp = hex(int(temp, 16) + 16).replace("0x", "").upper()
-            
+        
+
         if(self.parametro[0] == "B"):
             temp = hex(int(temp, 16) + 1).replace("0x", "").upper()
             
