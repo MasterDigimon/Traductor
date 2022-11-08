@@ -643,7 +643,7 @@ def segunda_lectura(archivo, nuevas_et):
                             tam = (int(dato[0]) - 1) * 2
                             if(etiqueta != ""):
                                 etiquetas[etiqueta] = direccion
-                            lineas.append(Linea(palabra, x, True, None, direccion, dato[-tam:])) #Guarda IMM
+                            lineas.append(Linea(palabra, x, True, None, direccion, dato[2:])) #Guarda IMM
                             
                             direccion = suma_direcciones(direccion, dato[0])
                         
@@ -1138,6 +1138,11 @@ def ident_index(parametros):
             codigo += hex(16 - int(num, 16)).replace("0x", "").upper()
         else: 
             codigo += hex(int(num, 16) - 1).replace("0x", "").upper()
+    elif(int(num, 16) <= 8 and int(num, 16) > 0 and p_f4 != None and rr == "11"):
+        return False
+    
+    elif(negativo and corcehetes):
+        return False
 
     return codigo
 
