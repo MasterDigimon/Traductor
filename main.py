@@ -56,7 +56,7 @@ def primera_lectura(archivo):
                 cont += 1
                 palabra += ch
             elif(((ch == ":" or ch == "\t")or ch == "\t")and cont == 1):
-                #etiquetas[palabra] = direccion
+                etiquetas[palabra] = direccion
                 etiqueta = palabra
                 palabra = ""
                 cont = 0
@@ -1088,11 +1088,9 @@ def ident_index(parametros):
     elif(int(num, 16) <= 16 and negativo == True and corcehetes == False and p_f4 == None):#FORMULA 1 Negativa
         codigo  = rr + "01"
         num = hex(16 - int(num, 16)).replace("0x", "").upper()
-
-        for i in range(len(bin(int(num, 16))), 4):
-            codigo += "0"
-
         codigo = hex(int(codigo, 2)).replace("0x", "").upper()
+
+        
         codigo += num
         
         
